@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B211D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>MiniMania 2026</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="MiniMania">
+<style>
+:root{
+  --felt-deep:#0B211D;
+  --felt:#12312A;
+  --rail:#1D473D;
+  --rail-line:#27584B;
+  --ivory:#F2EDE3;
+  --ivory-dim:#A9BDB4;
+  --chalk:#5FA8D3;
+  --chalk-deep:#2E6F9E;
+  --yellow:#F2C14E;
+  --coral:#E2705B;
+  --disp:-apple-system,BlinkMacSystemFont,"Segoe UI Variable Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --data:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--felt-deep);
+  color:var(--ivory);
+  font-family:var(--disp);
+  font-size:15px;
+  line-height:1.35;
+  padding-bottom:env(safe-area-inset-bottom);
+  -webkit-text-size-adjust:100%;
+}
+button,input,select{font:inherit;color:inherit}
+button{background:none;border:none;padding:0;cursor:pointer}
+
+/* ---------- masthead ---------- */
+.mast{
+  padding:14px 14px 10px;
+  background:var(--felt);
+  border-bottom:1px solid var(--rail-line);
+}
+.mast h1{
+  margin:0;
+  font-size:23px;
+  font-weight:800;
+  letter-spacing:-.02em;
+  text-transform:uppercase;
+}
+.mast h1 em{font-style:normal;color:var(--yellow)}
+.mast p{
+  margin:3px 0 0;
+  font-family:var(--data);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ivory-dim);
+}
+
+/* ---------- controls ---------- */
+.controls{
+  position:sticky;top:0;z-index:20;
+  background:rgba(11,33,29,.94);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--rail-line);
+}
+.searchrow{display:flex;gap:8px;padding:10px 14px 8px;align-items:center}
+.search{
+  flex:1;position:relative;
+}
+.search input{
+  width:100%;
+  background:var(--felt);
+  border:1px solid var(--rail-line);
+  border-radius:10px;
+  padding:10px 34px 10px 12px;
+  font-size:16px;
+  outline:none;
+}
+.search input:focus{border-color:var(--chalk)}
+.search input::placeholder{color:var(--ivory-dim)}
+.search .clear{
+  position:absolute;right:4px;top:50%;transform:translateY(-50%);
+  width:28px;height:28px;color:var(--ivory-dim);font-size:18px;line-height:1;
+}
+.iconbtn{
+  width:42px;height:42px;flex:none;
+  border:1px solid var(--rail-line);border-radius:10px;
+  background:var(--felt);
+  display:grid;place-items:center;
+  font-family:var(--data);font-size:11px;font-weight:700;letter-spacing:.04em;
+}
+.iconbtn[aria-pressed="true"]{background:var(--chalk-deep);border-color:var(--chalk);color:#fff}
+.iconbtn .dot{
+  position:absolute;margin:-18px 0 0 24px;width:7px;height:7px;border-radius:50%;background:var(--yellow);
+}
+
+.rail{
+  display:flex;gap:6px;overflow-x:auto;padding:0 14px 10px;
+  scrollbar-width:none;
+}
+.rail::-webkit-scrollbar{display:none}
+.rail.wrap{flex-wrap:wrap;overflow:visible}
+.chip{
+  flex:none;
+  border:1px solid var(--rail-line);
+  border-radius:999px;
+  padding:6px 11px;
+  font-size:13px;
+  white-space:nowrap;
+  color:var(--ivory-dim);
+  background:var(--felt);
+  transition:background .12s,color .12s,border-color .12s;
+}
+.chip .sub{font-family:var(--data);font-size:10px;opacity:.7;margin-left:5px}
+.chip[aria-pressed="true"]{background:var(--ivory);color:var(--felt-deep);border-color:var(--ivory);font-weight:600}
+.chip[aria-pressed="true"] .sub{opacity:.55}
+
+/* ---------- settings drawer ---------- */
+.drawer{
+  display:none;
+  padding:2px 14px 14px;
+  border-top:1px solid var(--rail-line);
+  background:var(--felt);
+}
+.drawer.open{display:block}
+.field{margin-top:12px}
+.field > label{
+  display:block;
+  font-family:var(--data);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ivory-dim);margin-bottom:6px;
+}
+.slrow{display:flex;gap:14px;flex-wrap:wrap}
+.slgroup{display:flex;align-items:center;gap:7px}
+.slgroup span{font-family:var(--data);font-size:12px;color:var(--ivory-dim)}
+.slgroup select{
+  background:var(--felt-deep);border:1px solid var(--rail-line);border-radius:8px;
+  padding:7px 8px;font-family:var(--data);font-size:14px;
+}
+.note{
+  margin:12px 0 0;font-size:12px;line-height:1.45;color:var(--ivory-dim);
+  border-left:2px solid var(--rail-line);padding-left:10px;
+}
+
+/* ---------- results ---------- */
+.tally{
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  padding:12px 14px 6px;
+  font-family:var(--data);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ivory-dim);
+}
+.tally b{color:var(--ivory);font-size:13px}
+.tally button{color:var(--chalk);font-family:var(--data);font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+
+.day{
+  position:sticky;top:0;z-index:5;
+  margin:0;padding:9px 14px;
+  background:var(--rail);
+  border-top:1px solid var(--rail-line);border-bottom:1px solid var(--rail-line);
+  font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+}
+.day .count{float:right;font-family:var(--data);font-weight:400;font-size:11px;color:var(--ivory-dim);letter-spacing:.04em}
+
+.slot{display:flex;border-bottom:1px solid rgba(39,88,75,.5)}
+.slot .when{
+  flex:none;width:74px;padding:11px 0 11px 14px;
+  font-family:var(--data);font-size:12px;font-weight:600;color:var(--yellow);
+  letter-spacing:-.02em;
+}
+.slot .when.cont{color:transparent}
+.slot .items{flex:1;min-width:0;padding:5px 10px 5px 0}
+
+.ev{
+  display:flex;align-items:center;gap:9px;
+  padding:6px 4px 6px 0;
+  width:100%;text-align:left;
+}
+.ev + .ev{border-top:1px dotted rgba(39,88,75,.55)}
+.ev .num{
+  flex:none;width:34px;
+  font-family:var(--data);font-size:13px;font-weight:600;color:var(--ivory-dim);
+}
+.ev.pick .num{color:var(--yellow)}
+.ev .body{flex:1;min-width:0}
+.ev .line1{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.ev .fmt{
+  font-size:13px;font-weight:600;letter-spacing:-.01em;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.ball{
+  width:15px;height:15px;border-radius:50%;flex:none;
+  display:grid;place-items:center;
+  font-family:var(--data);font-size:9px;font-weight:700;
+}
+.ball.b8{background:#0A0A0A;color:#fff;box-shadow:inset 0 0 0 1px rgba(242,237,227,.35)}
+.ball.b9{background:var(--yellow);color:#3A2A05}
+.ball.pair{margin-left:-9px}
+.ev .meta{
+  font-family:var(--data);font-size:11px;color:var(--ivory-dim);
+  margin-top:3px;display:flex;gap:9px;flex-wrap:wrap;
+}
+.ev .fee{color:var(--ivory)}
+.ev .fee.hi{color:var(--coral)}
+.ev .fee.lo{color:var(--chalk)}
+
+/* skill-level ball strip — the scan target */
+.sl{display:flex;gap:3px;align-items:center}
+.sl i{
+  width:17px;height:17px;border-radius:50%;
+  border:1px solid var(--rail-line);
+  display:grid;place-items:center;
+  font-family:var(--data);font-style:normal;font-size:10px;font-weight:600;
+  color:var(--ivory-dim);
+}
+.sl i.on{background:var(--chalk);border-color:var(--chalk);color:#06202F;font-weight:700}
+.sl .any{
+  font-family:var(--data);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  border:1px solid var(--rail-line);border-radius:999px;padding:2px 7px;color:var(--ivory-dim);
+}
+.sl .any.on{background:var(--chalk);border-color:var(--chalk);color:#06202F}
+.sl .limit{
+  font-family:var(--data);font-size:11px;color:var(--ivory-dim);
+  border:1px dashed var(--rail-line);border-radius:6px;padding:2px 6px;
+}
+.sl .limit.on{color:var(--chalk);border-color:var(--chalk)}
+
+.star{
+  flex:none;width:34px;height:34px;display:grid;place-items:center;
+  font-size:17px;color:var(--rail-line);
+}
+.star.on{color:var(--yellow)}
+
+.empty{padding:48px 24px;text-align:center;color:var(--ivory-dim)}
+.empty b{display:block;color:var(--ivory);font-size:16px;margin-bottom:6px}
+.empty button{color:var(--chalk);text-decoration:underline;margin-top:12px}
+
+.foot{
+  padding:22px 14px 34px;font-size:11px;line-height:1.6;color:var(--ivory-dim);
+  font-family:var(--data);border-top:1px solid var(--rail-line);margin-top:18px;
+}
+
+@media (min-width:720px){
+  body{font-size:16px}
+  .wrapper{max-width:880px;margin:0 auto}
+  .slot .when{width:92px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:focus-visible{outline:2px solid var(--chalk);outline-offset:2px;border-radius:6px}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<header class="mast">
+  <h1>Mini<em>Mania</em> 2026</h1>
+  <p>APA World Pool Championships &middot; Westgate Las Vegas &middot; Aug 4&ndash;14</p>
+</header>
+
+<div class="controls">
+  <div class="searchrow">
+    <div class="search">
+      <input id="q" type="search" inputmode="search" placeholder="Event #, format, skill level, time&hellip;" autocomplete="off">
+      <button class="clear" id="clearq" aria-label="Clear search" hidden>&times;</button>
+    </div>
+    <button class="iconbtn" id="starToggle" aria-pressed="false" title="Show only starred">&#9733;</button>
+    <button class="iconbtn" id="setToggle" aria-pressed="false" title="Skill levels and options">SL</button>
+  </div>
+
+  <div class="rail" id="dayRail"></div>
+  <div class="rail" id="fmtRail"></div>
+
+  <div class="drawer" id="drawer">
+    <div class="field">
+      <label>Your skill levels</label>
+      <div class="slrow">
+        <div class="slgroup"><span>8-Ball</span><select id="sl8"></select></div>
+        <div class="slgroup"><span>9-Ball</span><select id="sl9"></select></div>
+        <button class="chip" id="eligOnly" aria-pressed="false">Only what I can enter</button>
+      </div>
+      <p class="note">Your levels light up in blue on every event. Scotch doubles show a combined-limit tag: you can enter if your level plus your partner&rsquo;s stays at or under it.</p>
+    </div>
+    <div class="field">
+      <label>Entry fee</label>
+      <div class="rail wrap" id="feeRail"></div>
+    </div>
+    <div class="field">
+      <label>Field size</label>
+      <div class="rail wrap" id="sizeRail"></div>
+    </div>
+    <div class="field">
+      <label>Start time</label>
+      <div class="rail wrap" id="timeRail"></div>
+    </div>
+  </div>
+</div>
+
+<div class="tally">
+  <span><b id="count">0</b> events</span>
+  <button id="reset">Reset filters</button>
+</div>
+
+<main id="list"></main>
+
+<footer class="foot">
+  Transcribed from the 2026 WPC MiniMania Event Guide (events 1&ndash;940). Entry fees are cash at registration, 100% payback. Bring photo ID and your APA membership card. Times and fields can change at the desk &mdash; confirm before you commit.
+</footer>
+
+</div>
+
+<script>
+/* ---------------- data ----------------
+   #Day|ISO date
+   @Start time
+   event, entrants, format, skill, fee
+   formats: 8 | 9 | S8 | S9 | L8 | L9   (L = League Operator and Player)
+   skill:   digit string | A (any) | Lnn (combined limit)
+---------------------------------------- */
+const RAW = `
+#Tuesday, August 4|2026-08-04
+@5:00 PM
+1,16,9,345,20
+2,16,8,5,20
+3,8,9,3,20
+4,8,8,67,20
+@5:30 PM
+5,16,9,45,20
+6,16,8,56,20
+7,8,9,56,20
+8,8,8,7,50
+@6:00 PM
+9,32,S8,L13,40
+10,8,9,4,20
+@6:30 PM
+11,16,8,34,20
+12,8,8,45,50
+13,8,9,456,20
+@7:00 PM
+14,8,8,45,20
+15,8,9,345,20
+16,8,8,67,20
+@7:30 PM
+17,16,9,456,20
+18,8,8,23,20
+19,8,9,5,20
+20,8,8,45,20
+@8:00 PM
+21,8,9,123,20
+22,8,8,3,20
+23,8,9,56,20
+24,8,8,4,20
+@8:30 PM
+25,8,8,23,20
+26,8,8,45,20
+27,8,9,6789,20
+28,8,8,45,20
+@9:00 PM
+29,8,8,34,20
+30,8,8,56,20
+31,8,9,45,20
+32,8,8,6,20
+@9:30 PM
+33,8,8,A,20
+34,8,8,A,20
+35,8,8,A,20
+36,8,8,A,20
+@10:00 PM
+37,8,9,A,20
+38,8,9,A,20
+39,8,9,A,20
+40,8,9,A,20
+#Wednesday, August 5|2026-08-05
+@9:00 AM
+41,16,8,45,20
+42,16,8,67,20
+43,8,9,123,20
+44,8,9,456,20
+@9:30 AM
+45,16,9,6789,20
+46,16,9,345,20
+47,8,8,34,20
+48,8,8,7,20
+@10:00 AM
+49,32,S8,L9,40
+50,8,9,789,20
+@10:30 AM
+51,8,8,56,20
+52,8,8,23,20
+53,8,8,4,20
+54,8,9,456,20
+@11:00 AM
+55,16,9,5,20
+56,8,9,6789,20
+57,8,8,45,20
+@11:30 AM
+58,16,8,3,20
+59,8,9,45,20
+60,8,9,456,20
+@Noon
+61,16,8,67,20
+62,8,9,345,20
+63,8,8,23,20
+@12:30 PM
+64,16,8,45,20
+65,8,9,789,20
+66,8,9,6,20
+@1:00 PM
+67,16,L8,L11,40
+68,8,9,45,20
+69,8,8,56,20
+@1:30 PM
+70,16,8,45,20
+71,8,8,67,20
+72,8,8,34,20
+73,8,9,6,20
+@2:00 PM
+74,16,8,56,20
+75,8,9,789,20
+76,8,8,5,20
+@2:30 PM
+77,16,9,456,20
+78,8,9,6789,20
+79,8,8,23,20
+80,8,9,345,20
+@3:00 PM
+81,16,8,45,20
+82,8,9,4,20
+83,8,8,56,20
+84,8,9,6789,20
+@3:30 PM
+85,16,8,34,20
+86,8,8,4,20
+87,8,9,456,20
+88,8,8,56,20
+@4:00 PM
+89,16,9,89,50
+90,8,8,6,20
+91,8,9,123,20
+@4:30 PM
+92,16,8,34,20
+93,8,9,56,20
+94,8,8,45,20
+@5:00 PM
+95,16,8,34,20
+96,8,9,45,20
+97,8,8,67,50
+@5:30 PM
+98,16,9,5,20
+99,8,8,23,20
+100,8,9,345,20
+@6:00 PM
+101,32,S9,L11,40
+102,8,8,5,20
+@6:30 PM
+103,8,8,6,20
+104,8,9,45,20
+105,8,8,56,20
+106,8,9,123,10
+@7:00 PM
+107,8,8,45,50
+108,8,9,56,20
+109,8,8,7,50
+110,8,9,4,20
+@7:30 PM
+111,8,8,34,20
+112,8,9,3,20
+113,8,9,6789,20
+@8:00 PM
+114,8,8,45,20
+115,8,9,345,20
+116,8,8,23,20
+@8:30 PM
+117,8,9,456,20
+118,8,8,67,20
+119,8,8,67,20
+@9:00 PM
+120,8,8,45,20
+121,8,9,123,20
+122,8,8,3,20
+123,8,9,56,20
+@9:30 PM
+124,8,8,A,20
+125,8,8,A,20
+126,8,8,A,20
+127,8,8,A,20
+@10:00 PM
+128,8,9,A,20
+129,8,9,A,20
+130,8,9,A,20
+131,8,9,A,20
+#Thursday, August 6|2026-08-06
+@9:00 AM
+132,16,8,67,50
+133,16,8,67,20
+134,8,9,123,20
+135,8,9,456,20
+@9:30 AM
+136,16,9,6789,20
+137,16,9,345,20
+138,8,8,45,20
+139,8,8,7,20
+@10:00 AM
+140,32,S8,L11,40
+141,8,8,34,20
+@10:30 AM
+142,8,9,789,20
+143,8,8,45,20
+144,8,8,23,20
+145,8,8,4,20
+@11:00 AM
+146,16,9,456,20
+147,8,9,5,20
+148,8,9,6789,20
+@11:30 AM
+149,16,8,45,20
+150,8,8,3,20
+151,8,9,45,20
+@Noon
+152,16,9,456,20
+153,8,8,67,20
+154,8,9,345,20
+@12:30 PM
+155,16,8,23,20
+156,8,8,45,20
+157,8,9,789,20
+@1:00 PM
+158,16,9,6,20
+159,8,8,56,20
+160,8,8,6,20
+@1:30 PM
+161,16,9,45,20
+162,8,8,45,20
+163,8,8,67,20
+164,8,8,34,20
+@2:00 PM
+165,16,9,6,20
+166,8,8,56,20
+167,8,9,789,20
+@2:30 PM
+168,16,8,5,20
+169,8,9,456,20
+170,8,9,6789,20
+171,8,8,23,20
+@3:00 PM
+172,16,9,345,20
+173,8,8,45,20
+174,8,9,4,20
+175,8,8,56,20
+@3:30 PM
+176,16,9,6789,20
+177,8,8,34,20
+178,8,8,4,20
+179,8,9,456,20
+@4:00 PM
+180,16,8,56,20
+181,8,9,89,50
+182,8,8,6,20
+@4:30 PM
+183,16,9,123,20
+184,8,8,34,20
+185,8,9,56,20
+@5:00 PM
+186,16,8,45,20
+187,8,9,4,20
+188,8,9,45,20
+@5:30 PM
+189,16,L9,L13,40
+190,8,9,5,20
+191,8,9,345,20
+@6:00 PM
+192,32,S9,L9,40
+193,8,8,5,20
+@6:30 PM
+194,8,8,23,10
+195,8,8,6,20
+196,8,9,45,20
+197,8,8,56,20
+@7:00 PM
+198,8,9,123,10
+199,8,8,45,50
+200,8,9,56,20
+201,8,8,7,50
+@7:30 PM
+202,8,9,4,20
+203,8,8,34,20
+204,8,8,5,20
+@8:00 PM
+205,8,9,6789,20
+206,8,8,45,20
+207,8,9,345,20
+@8:30 PM
+208,8,8,23,20
+209,8,9,456,20
+210,8,8,67,20
+@9:00 PM
+211,8,9,5,20
+212,8,8,45,20
+213,8,9,123,20
+214,8,8,3,20
+@9:30 PM
+215,8,8,A,20
+216,8,8,A,20
+217,8,8,A,20
+218,8,8,A,20
+@10:00 PM
+219,8,9,A,20
+220,8,9,A,20
+221,8,9,A,20
+222,8,9,A,20
+#Friday, August 7|2026-08-07
+@9:00 AM
+223,16,L8,L9,40
+224,16,8,67,20
+225,8,9,123,20
+226,8,8,34,20
+@9:30 AM
+227,16,9,6789,20
+228,16,9,345,20
+229,8,8,45,20
+230,8,8,7,20
+@10:00 AM
+231,32,S8,L11,40
+232,8,9,789,20
+@10:30 AM
+233,8,8,45,20
+234,8,8,23,20
+235,8,8,4,20
+236,8,9,456,20
+@11:00 AM
+237,16,9,5,20
+238,8,9,6789,20
+239,8,8,45,20
+@11:30 AM
+240,16,8,3,20
+241,8,9,45,20
+242,8,9,456,20
+@Noon
+243,16,8,67,20
+244,8,9,345,20
+245,8,8,23,20
+@12:30 PM
+246,16,8,45,20
+247,8,9,789,20
+248,8,9,6,20
+@1:00 PM
+249,16,8,56,20
+250,8,9,45,20
+251,8,9,56,20
+@1:30 PM
+252,16,8,45,20
+253,8,8,67,20
+254,8,8,34,20
+255,8,9,6,20
+@2:00 PM
+256,16,8,56,20
+257,8,9,789,20
+258,8,8,5,20
+@2:30 PM
+259,16,9,456,20
+260,8,9,6789,20
+261,8,8,45,20
+262,8,9,345,20
+@3:00 PM
+263,16,8,23,10
+264,8,8,67,20
+265,8,8,56,20
+266,8,9,6789,20
+@3:30 PM
+267,16,8,34,20
+268,8,8,4,20
+269,8,9,456,20
+270,8,8,56,20
+@4:00 PM
+271,16,9,89,50
+272,8,8,6,20
+273,8,9,123,20
+@4:30 PM
+274,16,8,34,20
+275,8,9,56,20
+276,8,8,45,20
+@5:00 PM
+277,16,9,4,20
+278,8,9,45,20
+279,8,8,67,50
+@5:30 PM
+280,16,8,56,20
+281,8,8,5,20
+282,8,9,345,20
+@6:00 PM
+283,32,S9,L13,40
+284,8,8,23,20
+@6:30 PM
+285,8,8,6,20
+286,8,9,45,20
+287,8,8,56,20
+288,8,9,123,10
+@7:00 PM
+289,8,8,45,50
+290,8,8,34,20
+291,8,8,7,50
+292,8,9,4,20
+@7:30 PM
+293,8,8,34,20
+294,8,9,3,20
+295,8,9,6789,20
+@8:00 PM
+296,8,8,45,20
+297,8,9,345,20
+298,8,8,23,20
+@8:30 PM
+299,8,9,456,20
+300,8,8,67,20
+301,8,9,5,20
+@9:00 PM
+302,8,8,45,20
+303,8,9,123,20
+304,8,8,3,20
+305,8,9,56,20
+@9:30 PM
+306,8,8,A,20
+307,8,8,A,20
+308,8,8,A,20
+309,8,8,A,20
+@10:00 PM
+310,8,9,A,20
+311,8,9,A,20
+312,8,9,A,20
+313,8,9,A,20
+#Saturday, August 8|2026-08-08
+@9:00 AM
+314,16,8,45,20
+315,16,8,67,20
+316,8,9,123,20
+317,8,8,56,20
+@9:30 AM
+318,16,9,6789,20
+319,16,9,345,20
+320,8,8,45,20
+321,8,8,7,20
+@10:00 AM
+322,32,S8,L9,40
+323,8,9,789,20
+@10:30 AM
+324,8,8,45,20
+325,8,8,23,10
+326,8,8,4,20
+327,8,9,456,20
+@11:00 AM
+328,16,9,5,20
+329,8,9,6789,20
+330,8,8,45,20
+@11:30 AM
+331,16,8,3,20
+332,8,9,45,20
+333,8,9,456,20
+@Noon
+334,16,8,67,20
+335,8,9,345,20
+336,8,8,23,20
+@12:30 PM
+337,16,8,45,20
+338,8,9,789,20
+339,8,9,6,20
+@1:00 PM
+340,16,9,5,20
+341,8,9,45,20
+342,8,8,56,20
+@1:30 PM
+343,16,8,45,20
+344,8,8,67,20
+345,8,8,34,20
+346,8,9,6,20
+@2:00 PM
+347,16,8,56,20
+348,8,9,789,20
+349,8,8,5,20
+@2:30 PM
+350,16,9,456,20
+351,8,9,6789,20
+352,8,8,23,20
+353,8,9,345,20
+@3:00 PM
+354,16,8,45,20
+355,8,9,4,20
+356,8,8,56,20
+357,8,9,6789,20
+@3:30 PM
+358,16,8,34,20
+359,8,8,4,20
+360,8,9,456,20
+361,8,8,56,20
+@4:00 PM
+362,16,9,89,50
+363,8,8,6,20
+364,8,9,123,20
+@4:30 PM
+365,16,8,34,20
+366,8,9,56,20
+367,8,8,67,20
+@5:00 PM
+368,16,8,4,20
+369,8,9,45,20
+370,8,8,67,50
+@5:30 PM
+371,16,L9,L11,40
+372,8,8,23,20
+373,8,9,345,20
+@6:00 PM
+374,32,S9,L11,40
+375,8,8,5,20
+@6:30 PM
+376,8,8,6,20
+377,8,9,45,20
+378,8,8,56,20
+379,8,9,123,10
+@7:00 PM
+380,8,8,45,50
+381,8,9,56,20
+382,8,8,7,50
+383,8,9,4,20
+@7:30 PM
+384,8,8,34,20
+385,8,9,3,20
+386,8,9,6789,20
+@8:00 PM
+387,8,8,45,20
+388,8,9,345,20
+389,8,8,23,20
+@8:30 PM
+390,8,9,456,20
+391,8,8,67,20
+392,8,8,34,20
+@9:00 PM
+393,8,8,45,20
+394,8,9,123,20
+395,8,8,3,20
+396,8,9,56,20
+@9:30 PM
+397,8,8,A,20
+398,8,8,A,20
+399,8,8,A,20
+400,8,8,A,20
+@10:00 PM
+401,8,9,A,20
+402,8,9,A,20
+403,8,9,A,20
+404,8,9,A,20
+#Sunday, August 9|2026-08-09
+@9:00 AM
+405,16,L8,L13,40
+406,16,8,67,20
+407,8,9,123,20
+408,8,9,456,20
+@9:30 AM
+409,16,9,6789,20
+410,16,9,345,20
+411,8,8,45,20
+412,8,8,7,20
+@10:00 AM
+413,32,S8,L13,40
+414,8,9,789,20
+@10:30 AM
+415,8,8,45,20
+416,8,8,23,20
+417,8,8,4,20
+418,8,9,456,20
+@11:00 AM
+419,16,9,5,20
+420,8,9,6789,20
+421,8,8,45,20
+@11:30 AM
+422,16,8,3,20
+423,8,9,45,20
+424,8,9,456,20
+@Noon
+425,16,8,67,20
+426,8,9,345,20
+427,8,8,23,20
+@12:30 PM
+428,16,8,45,20
+429,8,9,789,20
+430,8,9,6,20
+@1:00 PM
+431,16,8,56,20
+432,8,9,4,20
+433,8,9,45,20
+@1:30 PM
+434,16,8,45,20
+435,8,8,67,20
+436,8,8,34,20
+437,8,9,6,20
+@2:00 PM
+438,16,8,56,20
+439,8,9,789,20
+440,8,8,5,20
+@2:30 PM
+441,16,9,456,20
+442,8,9,6789,20
+443,8,8,23,20
+444,8,9,345,20
+@3:00 PM
+445,16,8,45,20
+446,8,8,56,20
+447,8,8,5,20
+448,8,9,6789,20
+@3:30 PM
+449,16,8,34,20
+450,8,8,4,20
+451,8,9,456,20
+452,8,8,56,20
+@4:00 PM
+453,16,9,89,50
+454,8,8,6,20
+455,8,9,123,20
+@4:30 PM
+456,16,8,34,20
+457,8,9,56,20
+458,8,8,45,20
+@5:00 PM
+459,16,9,4,20
+460,8,9,45,20
+461,8,8,67,50
+@5:30 PM
+462,16,9,5,20
+463,8,8,23,20
+464,8,9,345,20
+@6:00 PM
+465,32,S9,L9,40
+466,8,8,5,20
+@6:30 PM
+467,8,8,6,20
+468,8,9,45,20
+469,8,8,56,20
+470,8,9,123,10
+@7:00 PM
+471,8,8,45,50
+472,8,9,56,20
+473,8,8,7,50
+474,8,9,4,20
+@7:30 PM
+475,8,8,34,20
+476,8,9,6789,20
+477,8,8,45,20
+@8:00 PM
+478,8,9,3,20
+479,8,9,345,20
+480,8,8,23,20
+@8:30 PM
+481,8,9,456,20
+482,8,8,67,20
+483,8,9,5,20
+@9:00 PM
+484,8,8,45,20
+485,8,9,123,20
+486,8,8,3,20
+487,8,9,56,20
+@9:30 PM
+488,8,8,A,20
+489,8,8,A,20
+490,8,8,A,20
+491,8,8,A,20
+@10:00 PM
+492,8,9,A,20
+493,8,9,A,20
+494,8,9,A,20
+495,8,9,A,20
+#Monday, August 10|2026-08-10
+@9:00 AM
+496,16,8,67,50
+497,16,8,67,20
+498,8,9,123,20
+499,8,9,456,20
+@9:30 AM
+500,16,9,6789,20
+501,16,9,345,20
+502,8,8,45,20
+503,8,8,7,20
+@10:00 AM
+504,32,S8,L11,40
+505,8,8,34,20
+@10:30 AM
+506,8,9,789,20
+507,8,8,45,20
+508,8,8,23,20
+509,8,8,4,20
+@11:00 AM
+510,16,9,456,20
+511,8,9,5,20
+512,8,9,6789,20
+@11:30 AM
+513,16,8,45,20
+514,8,8,3,20
+515,8,9,45,20
+@Noon
+516,16,9,456,20
+517,8,8,67,20
+518,8,9,345,20
+@12:30 PM
+519,16,8,23,20
+520,8,8,45,20
+521,8,9,789,20
+@1:00 PM
+522,16,9,6,20
+523,8,8,56,20
+524,8,8,6,20
+@1:30 PM
+525,16,9,45,20
+526,8,8,45,20
+527,8,8,67,20
+528,8,8,34,20
+@2:00 PM
+529,16,9,6,20
+530,8,8,56,20
+531,8,9,789,20
+@2:30 PM
+532,16,8,5,20
+533,8,9,456,20
+534,8,9,6789,20
+535,8,8,23,20
+@3:00 PM
+536,16,9,345,20
+537,8,8,45,20
+538,8,9,4,20
+539,8,8,56,20
+@3:30 PM
+540,16,9,6789,20
+541,8,8,34,20
+542,8,8,4,20
+543,8,9,456,20
+@4:00 PM
+544,16,8,56,20
+545,8,9,89,50
+546,8,8,6,20
+@4:30 PM
+547,16,9,123,20
+548,8,8,34,20
+549,8,9,56,20
+@5:00 PM
+550,32,S9,L13,40
+551,8,9,123,20
+552,8,9,456,20
+@6:00 PM
+553,8,9,6789,20
+554,8,9,345,20
+555,8,8,45,20
+556,8,8,7,20
+557,8,9,789,20
+@6:30 PM
+558,8,9,3,20
+559,8,8,45,20
+560,8,8,23,20
+561,8,8,4,20
+@7:00 PM
+562,8,9,456,20
+563,8,9,5,20
+564,8,9,6789,20
+565,8,8,45,20
+@7:30 PM
+566,8,8,3,20
+567,8,9,45,20
+568,8,9,456,20
+569,8,8,67,20
+@8:00 PM
+570,8,9,345,20
+571,8,8,23,20
+572,8,8,4,20
+573,8,9,789,20
+@8:30 PM
+574,8,9,6,20
+575,8,8,6,20
+576,8,9,6789,20
+577,8,8,34,20
+@9:00 PM
+578,8,9,3,20
+579,8,9,123,20
+580,8,9,4,20
+581,8,8,67,20
+@9:30 PM
+582,8,8,A,20
+583,8,8,A,20
+584,8,8,A,20
+585,8,8,A,20
+@10:00 PM
+586,8,9,A,20
+587,8,9,A,20
+588,8,9,A,20
+589,8,9,A,20
+#Tuesday, August 11|2026-08-11
+@9:00 AM
+590,16,8,45,20
+591,16,8,67,20
+592,8,9,123,20
+593,8,9,456,20
+@9:30 AM
+594,16,9,6789,20
+595,16,9,345,20
+596,8,8,45,20
+597,8,8,7,20
+@10:00 AM
+598,32,S8,L13,40
+599,8,9,789,20
+@10:30 AM
+600,8,8,45,20
+601,8,8,23,20
+602,8,8,4,20
+603,8,9,456,20
+@11:00 AM
+604,16,9,5,20
+605,8,9,6789,20
+606,8,8,45,20
+@11:30 AM
+607,16,8,3,20
+608,8,9,45,20
+609,8,9,456,20
+@Noon
+610,16,8,67,20
+611,8,9,345,20
+612,8,8,23,20
+@12:30 PM
+613,16,8,45,20
+614,8,9,789,20
+615,8,8,56,20
+@1:00 PM
+616,16,9,4,20
+617,8,9,6,20
+618,8,9,45,20
+@1:30 PM
+619,16,8,45,20
+620,8,8,67,20
+621,8,8,34,20
+622,8,9,6,20
+@2:00 PM
+623,16,8,56,20
+624,8,9,789,20
+625,8,8,5,20
+@2:30 PM
+626,16,9,456,20
+627,8,9,6789,20
+628,8,8,23,20
+629,8,9,345,20
+@3:00 PM
+630,16,8,45,20
+631,8,9,4,20
+632,8,8,56,20
+633,8,9,6789,20
+@3:30 PM
+634,16,8,34,20
+635,8,8,4,20
+636,8,9,456,20
+637,8,8,56,20
+@4:00 PM
+638,16,9,89,50
+639,8,8,6,20
+640,8,9,123,20
+@4:30 PM
+641,16,8,34,20
+642,8,9,56,20
+643,8,8,45,20
+@5:00 PM
+644,16,L9,L11,40
+645,8,9,45,20
+646,8,8,67,50
+@5:30 PM
+647,16,9,5,20
+648,8,8,23,20
+649,8,9,345,20
+@6:00 PM
+650,32,S9,L13,40
+651,8,9,3,20
+@6:30 PM
+652,8,8,6,20
+653,8,9,45,20
+654,8,8,56,20
+655,8,9,123,10
+@7:00 PM
+656,8,8,45,50
+657,8,9,56,20
+658,8,8,7,50
+659,8,9,4,20
+@7:30 PM
+660,8,8,34,20
+661,8,8,5,20
+662,8,9,6789,20
+@8:00 PM
+663,8,8,45,20
+664,8,9,345,20
+665,8,8,23,20
+@8:30 PM
+666,8,9,456,20
+667,8,8,67,20
+668,8,9,5,20
+@9:00 PM
+669,8,8,45,20
+670,8,9,123,20
+671,8,8,3,20
+672,8,9,56,20
+@9:30 PM
+673,8,8,A,20
+674,8,8,A,20
+675,8,8,A,20
+676,8,8,A,20
+@10:00 PM
+677,8,9,A,20
+678,8,9,A,20
+679,8,9,A,20
+680,8,9,A,20
+#Wednesday, August 12|2026-08-12
+@9:00 AM
+681,16,L9,L11,40
+682,16,8,23,20
+683,8,9,56,20
+684,8,9,34,20
+@9:30 AM
+685,16,9,6789,20
+686,16,9,345,20
+687,8,8,45,20
+688,8,8,7,20
+@10:00 AM
+689,32,S9,L13,40
+690,8,9,789,20
+@10:30 AM
+691,8,8,45,20
+692,8,8,34,20
+693,8,9,456,20
+694,8,9,123,20
+@11:00 AM
+695,16,9,6789,20
+696,8,8,45,20
+697,8,8,3,20
+@11:30 AM
+698,16,9,45,20
+699,8,9,456,20
+700,8,8,67,20
+@Noon
+701,16,9,345,20
+702,8,9,45,20
+703,8,8,45,20
+@12:30 PM
+704,16,9,789,20
+705,8,9,6,20
+706,8,8,56,20
+@1:00 PM
+707,16,9,456,20
+708,8,9,5,20
+709,8,8,45,20
+@1:30 PM
+710,16,8,67,20
+711,8,9,123,20
+712,8,9,6,20
+713,8,8,56,20
+@2:00 PM
+714,16,9,789,20
+715,8,8,5,20
+716,8,9,456,20
+@2:30 PM
+717,16,9,6789,20
+718,8,9,4,20
+719,8,9,345,20
+720,8,9,56,20
+@3:00 PM
+721,16,8,23,20
+722,8,8,56,20
+723,8,9,6789,20
+724,8,8,34,20
+@3:30 PM
+725,16,8,45,20
+726,8,8,4,20
+727,8,9,3,20
+728,8,9,89,50
+@4:00 PM
+729,16,8,6,20
+730,8,9,123,10
+731,8,8,34,20
+@4:30 PM
+732,16,8,56,20
+733,8,8,45,20
+734,8,9,4,20
+@5:00 PM
+735,16,9,45,20
+736,8,8,67,50
+737,8,9,5,20
+@5:30 PM
+738,16,8,23,20
+739,8,9,345,20
+740,8,9,45,20
+@6:00 PM
+741,32,S8,L9,40
+742,8,9,456,20
+@6:30 PM
+743,8,8,6,20
+744,8,9,45,20
+745,8,8,56,20
+746,8,9,123,20
+@7:00 PM
+747,8,9,56,20
+748,8,8,7,50
+749,8,9,4,20
+750,8,8,34,20
+@7:30 PM
+751,8,9,5,20
+752,8,8,45,20
+753,8,9,6789,20
+@8:00 PM
+754,8,8,23,20
+755,8,8,5,20
+756,8,8,45,20
+@8:30 PM
+757,8,9,345,20
+758,8,9,56,20
+759,8,8,4,20
+@9:00 PM
+760,8,8,3,20
+761,8,9,123,20
+762,8,9,456,20
+763,8,8,67,20
+@9:30 PM
+764,8,8,A,20
+765,8,8,A,20
+766,8,8,A,20
+767,8,8,A,20
+@10:00 PM
+768,8,9,A,20
+769,8,9,A,20
+770,8,9,A,20
+771,8,9,A,20
+#Thursday, August 13|2026-08-13
+@9:00 AM
+772,16,8,45,20
+773,16,8,67,20
+774,8,9,123,20
+775,8,9,456,20
+@9:30 AM
+776,16,9,6789,20
+777,16,9,345,20
+778,8,8,45,20
+779,8,8,7,20
+@10:00 AM
+780,32,S8,L13,40
+781,8,9,789,20
+@10:30 AM
+782,8,8,45,20
+783,8,8,23,20
+784,8,8,4,20
+785,8,9,456,20
+@11:00 AM
+786,16,9,5,20
+787,8,9,6789,20
+788,8,8,45,20
+@11:30 AM
+789,16,8,3,20
+790,8,9,45,20
+791,8,9,456,20
+@Noon
+792,16,8,67,20
+793,8,9,345,20
+794,8,8,23,20
+@12:30 PM
+795,16,8,45,20
+796,8,9,789,20
+797,8,9,6,20
+@1:00 PM
+798,16,8,56,20
+799,8,9,4,20
+800,8,9,45,20
+@1:30 PM
+801,16,8,45,20
+802,8,8,67,20
+803,8,8,34,20
+804,8,9,6,20
+@2:00 PM
+805,16,8,56,20
+806,8,9,789,20
+807,8,8,5,20
+@2:30 PM
+808,16,9,456,20
+809,8,9,6789,20
+810,8,8,23,20
+811,8,9,345,20
+@3:00 PM
+812,16,9,5,20
+813,8,8,56,20
+814,8,8,45,20
+815,8,9,6789,20
+@3:30 PM
+816,16,8,34,20
+817,8,8,4,20
+818,8,9,456,20
+819,8,8,56,20
+@4:00 PM
+820,16,9,89,50
+821,8,8,6,20
+822,8,9,123,20
+@4:30 PM
+823,16,8,34,20
+824,8,9,56,20
+825,8,8,45,20
+@5:00 PM
+826,16,9,4,20
+827,8,9,45,20
+828,8,8,67,50
+@5:30 PM
+829,16,L8,L13,40
+830,8,8,23,20
+831,8,9,345,20
+@6:00 PM
+832,32,S9,L9,40
+833,8,8,5,20
+@6:30 PM
+834,8,8,6,20
+835,8,9,45,20
+836,8,8,56,20
+837,8,9,123,10
+@7:00 PM
+838,8,8,45,50
+839,8,9,56,20
+840,8,8,7,50
+841,8,9,4,20
+@7:30 PM
+842,8,8,34,20
+843,8,9,6789,20
+844,8,8,45,20
+@8:00 PM
+845,8,9,3,20
+846,8,9,345,20
+847,8,8,23,20
+@8:30 PM
+848,8,9,456,20
+849,8,8,67,20
+850,8,9,5,20
+@9:00 PM
+851,8,8,45,20
+852,8,9,123,20
+853,8,8,3,20
+854,8,9,56,20
+@9:30 PM
+855,8,8,A,20
+856,8,8,A,20
+857,8,8,A,20
+858,8,8,A,20
+@10:00 PM
+859,8,9,A,20
+860,8,9,A,20
+861,8,9,A,20
+862,8,9,A,20
+#Friday, August 14|2026-08-14
+@9:00 AM
+863,16,L9,L13,40
+864,16,8,67,20
+865,8,9,123,20
+866,8,9,456,20
+@9:30 AM
+867,16,9,6789,20
+868,16,9,345,20
+869,8,8,45,20
+870,8,8,7,20
+@10:00 AM
+871,32,S9,L11,40
+872,8,8,34,20
+@10:30 AM
+873,8,9,789,20
+874,8,8,45,20
+875,8,8,23,20
+876,8,8,4,20
+@11:00 AM
+877,16,9,456,20
+878,8,9,5,20
+879,8,9,6789,20
+@11:30 AM
+880,16,8,45,20
+881,8,8,3,20
+882,8,9,45,20
+@Noon
+883,16,9,456,20
+884,8,8,67,20
+885,8,9,345,20
+@12:30 PM
+886,16,8,23,20
+887,8,8,45,20
+888,8,9,789,20
+@1:00 PM
+889,16,9,6,20
+890,8,8,56,20
+891,8,8,6,20
+@1:30 PM
+892,16,9,45,20
+893,8,8,45,20
+894,8,8,67,20
+895,8,8,34,20
+@2:00 PM
+896,16,9,6,20
+897,8,8,56,20
+898,8,9,789,20
+@2:30 PM
+899,16,8,5,20
+900,8,9,456,20
+901,8,9,6789,20
+902,8,8,23,20
+@3:00 PM
+903,16,9,345,20
+904,8,8,45,20
+905,8,9,4,20
+906,8,8,56,20
+@3:30 PM
+907,16,9,6789,20
+908,8,8,34,20
+909,8,8,4,20
+910,8,9,456,20
+@4:00 PM
+911,16,8,56,20
+912,8,9,89,50
+913,8,8,6,20
+@4:30 PM
+914,16,9,123,20
+915,8,8,34,20
+916,8,9,56,20
+@5:00 PM
+917,16,8,45,20
+918,8,9,4,20
+919,8,9,45,20
+@5:30 PM
+920,16,8,67,50
+921,8,9,5,20
+922,8,9,345,20
+@6:00 PM
+923,32,S9,L9,40
+924,8,8,5,20
+@6:30 PM
+925,8,8,23,10
+926,8,8,6,20
+927,8,9,45,20
+928,8,8,56,20
+@7:00 PM
+929,8,9,123,10
+930,8,8,45,50
+931,8,9,56,20
+932,8,8,7,50
+@7:30 PM
+933,8,8,A,20
+934,8,8,A,20
+935,8,8,A,20
+936,8,8,A,20
+@8:00 PM
+937,8,9,A,20
+938,8,9,A,20
+939,8,9,A,20
+940,8,9,A,20
+`;
+
+/* ---------------- parse ---------------- */
+const FMT = {
+  '8' :{label:'8-Ball',        game:'8', sd:false, lo:false},
+  '9' :{label:'9-Ball',        game:'9', sd:false, lo:false},
+  'S8':{label:'8-Ball Scotch Doubles', game:'8', sd:true,  lo:false},
+  'S9':{label:'9-Ball Scotch Doubles', game:'9', sd:true,  lo:false},
+  'L8':{label:'8-Ball Scotch Doubles', game:'8', sd:true,  lo:true},
+  'L9':{label:'9-Ball Scotch Doubles', game:'9', sd:true,  lo:true}
+};
+
+function toMinutes(t){
+  if(t==='Noon') return 720;
+  const m = t.match(/^(\d{1,2}):(\d{2})\s(AM|PM)$/);
+  let h = +m[1] % 12;
+  if(m[3]==='PM') h += 12;
+  return h*60 + (+m[2]);
+}
+
+const EVENTS = [];
+const DAYS = [];
+(function parse(){
+  let day=null, time=null, mins=0;
+  for(const raw of RAW.split('\n')){
+    const line = raw.trim();
+    if(!line) continue;
+    if(line[0]==='#'){
+      const [name,date] = line.slice(1).split('|');
+      day = {name, date, short:name.split(',')[0].slice(0,3), dnum:name.split(' ')[2]};
+      DAYS.push(day);
+      continue;
+    }
+    if(line[0]==='@'){ time = line.slice(1); mins = toMinutes(time); continue; }
+    const [n,ent,fmt,sl,fee] = line.split(',');
+    const f = FMT[fmt];
+    const limit = sl[0]==='L' ? +sl.slice(1) : null;
+    EVENTS.push({
+      n:+n, ent:+ent, fee:+fee, time, mins,
+      day:day.name, dayShort:day.short, dayNum:day.dnum, date:day.date,
+      fmtCode:fmt, fmtLabel:f.label, game:f.game, sd:f.sd, lo:f.lo,
+      any: sl==='A',
+      limit,
+      levels: (sl==='A'||limit) ? null : sl.split('').map(Number),
+      slText: sl==='A' ? 'Any SL' : limit ? ('Limit '+limit) : sl.split('').join('-')
+    });
+  }
+})();
+
+/* ---------------- state ---------------- */
+const store = (()=>{
+  let ok=true;
+  try{ localStorage.setItem('_t','1'); localStorage.removeItem('_t'); }catch(e){ ok=false; }
+  const mem={};
+  return {
+    get(k,d){ try{ const v = ok?localStorage.getItem(k):mem[k]; return v===null||v===undefined?d:JSON.parse(v);}catch(e){return d;} },
+    set(k,v){ try{ ok?localStorage.setItem(k,JSON.stringify(v)):(mem[k]=JSON.stringify(v)); }catch(e){} }
+  };
+})();
+
+const S = {
+  q:'',
+  days:new Set(store.get('days',[])),
+  fmts:new Set(store.get('fmts',[])),
+  fees:new Set(store.get('fees',[])),
+  sizes:new Set(store.get('sizes',[])),
+  slots:new Set(store.get('slots',[])),
+  sl8:store.get('sl8',0),
+  sl9:store.get('sl9',0),
+  eligOnly:store.get('eligOnly',false),
+  starOnly:false,
+  stars:new Set(store.get('stars',[]))
+};
+function persist(){
+  store.set('days',[...S.days]); store.set('fmts',[...S.fmts]);
+  store.set('fees',[...S.fees]); store.set('sizes',[...S.sizes]);
+  store.set('slots',[...S.slots]);
+  store.set('sl8',S.sl8); store.set('sl9',S.sl9);
+  store.set('eligOnly',S.eligOnly); store.set('stars',[...S.stars]);
+}
+
+/* ---------------- eligibility ---------------- */
+function myLevel(ev){ return ev.game==='8' ? S.sl8 : S.sl9; }
+function eligible(ev){
+  const lv = myLevel(ev);
+  if(!lv) return null;                       // level not set
+  if(ev.any) return true;
+  if(ev.limit) return lv <= ev.limit - 1;    // partner must be at least SL 1
+  return ev.levels.includes(lv);
+}
+
+/* ---------------- filtering ---------------- */
+const SLOTS = [
+  {id:'am',  label:'Morning',  test:m=>m<720},
+  {id:'pm',  label:'Afternoon',test:m=>m>=720&&m<1020},
+  {id:'eve', label:'Evening',  test:m=>m>=1020}
+];
+
+function matches(ev){
+  if(S.starOnly && !S.stars.has(ev.n)) return false;
+  if(S.days.size && !S.days.has(ev.date)) return false;
+  if(S.fmts.size){
+    const key = ev.sd ? ('S'+ev.game) : ev.game;
+    if(!S.fmts.has(key)) return false;
+  }
+  if(S.fees.size && !S.fees.has(ev.fee)) return false;
+  if(S.sizes.size && !S.sizes.has(ev.ent)) return false;
+  if(S.slots.size){
+    const slot = SLOTS.find(s=>s.test(ev.mins));
+    if(!S.slots.has(slot.id)) return false;
+  }
+  if(S.eligOnly && eligible(ev)!==true) return false;
+  if(S.q){
+    const q = S.q.toLowerCase().trim();
+    const hay = [ev.n, ev.fmtLabel, ev.slText, ev.time, ev.day, '$'+ev.fee, ev.ent+' entrants',
+                 ev.lo?'league operator and player':''].join(' ').toLowerCase();
+    // "#123" or a bare number should hit the event number first
+    if(/^#?\d+$/.test(q)){
+      if(String(ev.n) !== q.replace('#','')) {
+        if(!hay.includes(q)) return false;
+      }
+    } else if(!q.split(/\s+/).every(t=>hay.includes(t))) return false;
+  }
+  return true;
+}
+
+/* ---------------- render ---------------- */
+const $ = s=>document.querySelector(s);
+const listEl = $('#list');
+
+function chip(label, pressed, sub){
+  const b = document.createElement('button');
+  b.className='chip';
+  b.setAttribute('aria-pressed', pressed?'true':'false');
+  b.innerHTML = label + (sub?`<span class="sub">${sub}</span>`:'');
+  return b;
+}
+
+function buildRails(){
+  const dayRail = $('#dayRail');
+  const all = chip('All days', !S.days.size);
+  all.onclick = ()=>{ S.days.clear(); update(); };
+  dayRail.appendChild(all);
+  DAYS.forEach(d=>{
+    const c = chip(d.short+' '+d.dnum, S.days.has(d.date));
+    c.onclick = ()=>{ S.days.has(d.date)?S.days.delete(d.date):S.days.add(d.date); update(); };
+    c.dataset.day = d.date;
+    dayRail.appendChild(c);
+  });
+
+  const fmtRail = $('#fmtRail');
+  [['8','8-Ball'],['9','9-Ball'],['S8','8-Ball Scotch'],['S9','9-Ball Scotch']].forEach(([k,l])=>{
+    const c = chip(l, S.fmts.has(k));
+    c.onclick = ()=>{ S.fmts.has(k)?S.fmts.delete(k):S.fmts.add(k); update(); };
+    c.dataset.fmt = k;
+    fmtRail.appendChild(c);
+  });
+
+  const feeRail = $('#feeRail');
+  [10,20,40,50].forEach(f=>{
+    const c = chip('$'+f, S.fees.has(f));
+    c.onclick = ()=>{ S.fees.has(f)?S.fees.delete(f):S.fees.add(f); update(); };
+    c.dataset.fee = f;
+    feeRail.appendChild(c);
+  });
+
+  const sizeRail = $('#sizeRail');
+  [8,16,32].forEach(s=>{
+    const c = chip(s+'-player', S.sizes.has(s));
+    c.onclick = ()=>{ S.sizes.has(s)?S.sizes.delete(s):S.sizes.add(s); update(); };
+    c.dataset.size = s;
+    sizeRail.appendChild(c);
+  });
+
+  const timeRail = $('#timeRail');
+  SLOTS.forEach(s=>{
+    const sub = s.id==='am'?'before noon':s.id==='pm'?'noon–5':'5pm on';
+    const c = chip(s.label, S.slots.has(s.id), sub);
+    c.onclick = ()=>{ S.slots.has(s.id)?S.slots.delete(s.id):S.slots.add(s.id); update(); };
+    c.dataset.slot = s.id;
+    timeRail.appendChild(c);
+  });
+
+  const mk = (sel,max,val)=>{
+    const el = $(sel);
+    el.innerHTML = '<option value="0">—</option>' +
+      Array.from({length:max},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+    el.value = val;
+  };
+  mk('#sl8',7,S.sl8);
+  mk('#sl9',9,S.sl9);
+}
+
+function syncChips(){
+  document.querySelectorAll('#dayRail .chip').forEach(c=>{
+    c.setAttribute('aria-pressed', c.dataset.day ? (S.days.has(c.dataset.day)?'true':'false') : (!S.days.size?'true':'false'));
+  });
+  document.querySelectorAll('[data-fmt]').forEach(c=>c.setAttribute('aria-pressed',S.fmts.has(c.dataset.fmt)?'true':'false'));
+  document.querySelectorAll('[data-fee]').forEach(c=>c.setAttribute('aria-pressed',S.fees.has(+c.dataset.fee)?'true':'false'));
+  document.querySelectorAll('[data-size]').forEach(c=>c.setAttribute('aria-pressed',S.sizes.has(+c.dataset.size)?'true':'false'));
+  document.querySelectorAll('[data-slot]').forEach(c=>c.setAttribute('aria-pressed',S.slots.has(c.dataset.slot)?'true':'false'));
+  $('#eligOnly').setAttribute('aria-pressed',S.eligOnly?'true':'false');
+  $('#starToggle').setAttribute('aria-pressed',S.starOnly?'true':'false');
+  const anyFilter = S.days.size||S.fmts.size||S.fees.size||S.sizes.size||S.slots.size||S.eligOnly;
+  $('#setToggle').innerHTML = anyFilter ? 'SL<span class="dot"></span>' : 'SL';
+}
+
+function ballHTML(ev){
+  if(ev.sd) return `<span class="ball b${ev.game}">${ev.game}</span><span class="ball b${ev.game} pair">${ev.game}</span>`;
+  return `<span class="ball b${ev.game}">${ev.game}</span>`;
+}
+
+function slHTML(ev){
+  const lv = myLevel(ev);
+  if(ev.any) return `<span class="any${lv?' on':''}">Any SL</span>`;
+  if(ev.limit){
+    const ok = lv && lv <= ev.limit-1;
+    const partner = lv ? ` &middot; partner ≤ ${ev.limit-lv}` : '';
+    return `<span class="limit${ok?' on':''}">combined ≤ ${ev.limit}${ok?partner:''}</span>`;
+  }
+  return ev.levels.map(l=>`<i class="${l===lv?'on':''}">${l}</i>`).join('');
+}
+
+function render(){
+  const rows = EVENTS.filter(matches);
+  $('#count').textContent = rows.length.toLocaleString();
+
+  if(!rows.length){
+    listEl.innerHTML = `<div class="empty"><b>Nothing matches yet</b>
+      Loosen a filter or clear the search.
+      <br><button id="empty-reset">Reset filters</button></div>`;
+    $('#empty-reset').onclick = resetAll;
+    return;
+  }
+
+  let html = '', curDay = null, curTime = null, open = false;
+  for(const ev of rows){
+    if(ev.day !== curDay){
+      if(open){ html += '</div></div>'; open=false; }
+      curDay = ev.day; curTime = null;
+      const dayCount = rows.filter(r=>r.day===curDay).length;
+      html += `<h2 class="day">${curDay}<span class="count">${dayCount}</span></h2>`;
+    }
+    if(ev.time !== curTime){
+      if(open){ html += '</div></div>'; }
+      curTime = ev.time; open = true;
+      html += `<div class="slot"><div class="when">${ev.time}</div><div class="items">`;
+    }
+    const el = eligible(ev);
+    const feeCls = ev.fee>=50?'hi':ev.fee<=10?'lo':'';
+    html += `<button class="ev${S.stars.has(ev.n)?' pick':''}" data-n="${ev.n}">
+      <span class="num">${ev.n}</span>
+      <span class="body">
+        <span class="line1">
+          <span class="fmt">${ballHTML(ev)}${ev.fmtLabel.replace(' Scotch Doubles',' Scotch')}</span>
+          <span class="sl">${slHTML(ev)}</span>
+        </span>
+        <span class="meta">
+          <span class="fee ${feeCls}">$${ev.fee}</span>
+          <span>${ev.ent} players</span>
+          ${ev.lo?'<span>LO + player</span>':''}
+          ${el===true?'<span style="color:var(--chalk)">you qualify</span>':''}
+        </span>
+      </span>
+      <span class="star${S.stars.has(ev.n)?' on':''}">${S.stars.has(ev.n)?'★':'☆'}</span>
+    </button>`;
+  }
+  if(open) html += '</div></div>';
+  listEl.innerHTML = html;
+}
+
+listEl.addEventListener('click', e=>{
+  const btn = e.target.closest('.ev');
+  if(!btn) return;
+  const n = +btn.dataset.n;
+  S.stars.has(n) ? S.stars.delete(n) : S.stars.add(n);
+  persist(); render();
+});
+
+function update(){ syncChips(); render(); persist(); }
+
+function resetAll(){
+  S.q=''; $('#q').value=''; $('#clearq').hidden=true;
+  S.days.clear(); S.fmts.clear(); S.fees.clear(); S.sizes.clear(); S.slots.clear();
+  S.eligOnly=false; S.starOnly=false;
+  update();
+}
+
+/* ---------------- wiring ---------------- */
+let t;
+$('#q').addEventListener('input', e=>{
+  clearTimeout(t);
+  $('#clearq').hidden = !e.target.value;
+  t = setTimeout(()=>{ S.q = e.target.value; render(); }, 120);
+});
+$('#clearq').onclick = ()=>{ $('#q').value=''; S.q=''; $('#clearq').hidden=true; render(); $('#q').focus(); };
+$('#setToggle').onclick = ()=> $('#drawer').classList.toggle('open');
+$('#starToggle').onclick = ()=>{ S.starOnly=!S.starOnly; update(); };
+$('#eligOnly').onclick = ()=>{ S.eligOnly=!S.eligOnly; update(); };
+$('#sl8').onchange = e=>{ S.sl8=+e.target.value; update(); };
+$('#sl9').onchange = e=>{ S.sl9=+e.target.value; update(); };
+$('#reset').onclick = resetAll;
+
+buildRails();
+update();
+
+/* offline: cache everything on first visit */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
+/* open on today if the schedule is running */
+(function jumpToToday(){
+  if(S.days.size) return;
+  const today = new Date().toISOString().slice(0,10);
+  const d = DAYS.find(x=>x.date===today);
+  if(d){ S.days.add(d.date); update(); }
+})();
+</script>
+</body>
+</html>
